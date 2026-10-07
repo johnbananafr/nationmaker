@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#09090b">
+
+<title>COUNTRY BUILDER</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Inter,Arial,sans-serif;
+  background:#09090b;
+  color:#fff;
+}
+
+body{
+  display:flex;
+  justify-content:center;
+  padding:25px 14px 50px;
+}
+
+.app{
+  width:min(1050px,100%);
+}
+
+/* HEADER */
+
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.header h1{
+  margin:0;
+  font-size:clamp(34px,7vw,64px);
+  font-weight:950;
+  letter-spacing:-3px;
+}
+
+.header p{
+  margin:6px 0 0;
+  color:#777;
+  font-size:14px;
+  font-weight:700;
+}
+
+/* PROGRESS */
+
+.progress{
+  display:flex;
+  gap:8px;
+  margin-bottom:22px;
+}
+
+.progress-dot{
+  flex:1;
+  height:6px;
+  border-radius:20px;
+  background:#242428;
+  transition:.3s;
+}
+
+.progress-dot.active{
+  background:#fff;
+}
+
+.progress-dot.done{
+  background:#55e878;
+}
+
+/* CATEGORY */
+
+.category{
+  background:#1b1b20;
+  border-radius:24px;
+  padding:20px 22px;
+  margin-bottom:20px;
+  border:1px solid #29292f;
+}
+
+.category-top{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.category-icon{
+  font-size:35px;
+}
+
+.category-title{
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.category-description{
+  margin-top:5px;
+  color:#85858d;
+  font-size:14px;
+  font-style:italic;
+}
+
+/* RESULT */
+
+.result-box{
+  text-align:center;
+  min-height:82px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  margin-bottom:8px;
+}
+
+.result-label{
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  color:#777;
+  font-weight:900;
+}
+
+.result{
+  font-size:clamp(30px,7vw,52px);
+  font-weight:950;
+  letter-spacing:-2px;
+  transition:.35s;
+}
+
+/* WHEEL */
+
+.wheel-area{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  position:relative;
+  padding:8px 0 20px;
+}
+
+.wheel-wrap{
+  position:relative;
+  width:min(78vw,600px);
+  aspect-ratio:1;
+}
+
+canvas{
+  width:100%;
+  height:100%;
+  display:block;
+  border-radius:50%;
+  filter:drop-shadow(0 20px 35px rgba(0,0,0,.4));
+}
+
+.pointer{
+  position:absolute;
+  top:-7px;
+  left:50%;
+  transform:translateX(-50%);
+  width:0;
+  height:0;
+  border-left:17px solid transparent;
+  border-right:17px solid transparent;
+  border-top:32px solid white;
+  z-index:10;
+  filter:drop-shadow(0 3px 3px rgba(0,0,0,.5));
+}
+
+.center-dot{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:#111116;
+  border:6px solid white;
+  z-index:5;
+  box-shadow:0 5px 15px rgba(0,0,0,.4);
+}
+
+/* BUTTONS */
+
+.actions{
+  display:flex;
+  gap:12px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:4px;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+  font-family:inherit;
+  font-weight:900;
+  transition:.15s;
+}
+
+.spin{
+  background:#fff;
+  color:#09090b;
+  padding:17px 42px;
+  border-radius:14px;
+  font-size:18px;
+  min-width:190px;
+}
+
+.spin:hover{
+  transform:translateY(-2px);
+}
+
+.spin:active{
+  transform:scale(.97);
+}
+
+.spin:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.next{
+  background:#55e878;
+  color:#07100a;
+  padding:17px 30px;
+  border-radius:14px;
+  font-size:17px;
+  display:none;
+}
+
+.next:hover{
+  transform:translateY(-2px);
+}
+
+.reset{
+  background:#1c1c21;
+  color:#aaa;
+  padding:13px 20px;
+  border-radius:12px;
+  font-size:13px;
+}
+
+/* QUALITY */
+
+.quality{
+  text-align:center;
+  margin-top:15px;
+  min-height:25px;
+  font-weight:900;
+  font-size:14px;
+  letter-spacing:1px;
+}
+
+.quality.bad{
+  color:#ff4d5a;
+}
+
+.quality.mid{
+  color:#ffd84d;
+}
+
+.quality.good{
+  color:#55e878;
+}
+
+.quality.great{
+  color:#5ac8ff;
+}
+
+.quality.insane{
+  color:#c77dff;
+}
+
+/* SAVED */
+
+.saved{
+  margin-top:20px;
+  background:#121216;
+  border:1px solid #25252b;
+  border-radius:18px;
+  padding:17px;
+}
+
+.saved-title{
+  font-size:11px;
+  color:#777;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-weight:900;
+  margin-bottom:9px;
+}
+
+.saved-value{
+  font-size:20px;
+  font-weight:900;
+}
+
+@media(max-width:600px){
+  body{
+    padding:16px 10px 35px;
+  }
+
+  .category{
+    border-radius:18px;
+    padding:17px;
+  }
+
+  .category-title{
+    font-size:23px;
+  }
+
+  .category-icon{
+    font-size:29px;
+  }
+
+  .wheel-wrap{
+    width:min(90vw,520px);
+  }
+
+  .spin{
+    width:100%;
+  }
+
+  .next{
+    width:100%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <h1>COUNTRY BUILDER</h1>
+    <p>BUILD A COUNTRY. ONE WHEEL AT A TIME.</p>
+  </header>
+
+  <div class="progress">
+    <div class="progress-dot active" id="progress1"></div>
+    <div class="progress-dot" id="progress2"></div>
+    <div class="progress-dot" id="progress3"></div>
+    <div class="progress-dot" id="progress4"></div>
+    <div class="progress-dot" id="progress5"></div>
+  </div>
+
+  <section class="category">
+
+    <div class="category-top">
+      <div class="category-icon">🌍</div>
+
+      <div>
+        <div class="category-title">
+          COUNTRY SIZE
+        </div>
+
+        <div class="category-description">
+          Determines your map size
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <div class="result-box">
+
+    <div class="result-label">
+      RESULT
+    </div>
+
+    <div class="result" id="result">
+      —
+    </div>
+
+  </div>
+
+  <div class="wheel-area">
+
+    <div class="wheel-wrap">
+
+      <div class="pointer"></div>
+
+      <canvas id="wheel"></canvas>
+
+      <div class="center-dot"></div>
+
+    </div>
+
+  </div>
+
+  <div class="quality" id="quality"></div>
+
+  <div class="actions">
+
+    <button
+      class="spin"
+      id="spinButton"
+      onclick="spin()"
+    >
+      SPIN
+    </button>
+
+    <button
+      class="next"
+      id="nextButton"
+      onclick="nextWheel()"
+    >
+      NEXT WHEEL →
+    </button>
+
+  </div>
+
+  <div style="text-align:center;margin-top:12px">
+
+    <button
+      class="reset"
+      onclick="resetProgress()"
+    >
+      RESET COUNTRY
+    </button>
+
+  </div>
+
+  <div class="saved">
+
+    <div class="saved-title">
+      SAVED PROGRESS
+    </div>
+
+    <div
+      class="saved-value"
+      id="savedValue"
+    >
+      Country Size — Not selected
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+/* =========================================================
+   COUNTRY SIZE DATA
+========================================================= */
+
+const options = [
+  { value:1000, quality:1 },
+  { value:2500, quality:1 },
+  { value:5000, quality:1 },
+  { value:10000, quality:1 },
+  { value:25000, quality:2 },
+  { value:50000, quality:2 },
+  { value:100000, quality:2 },
+  { value:250000, quality:3 },
+  { value:500000, quality:3 },
+  { value:1000000, quality:3 },
+  { value:2500000, quality:4 },
+  { value:5000000, quality:4 },
+  { value:7500000, quality:5 },
+  { value:10000000, quality:5 }
+];
+
+
+/* =========================================================
+   CANVAS
+========================================================= */
+
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+
+let size = 600;
+
+function resizeCanvas(){
+
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
+
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+
+  drawWheel();
+
+}
+
+window.addEventListener("resize",resizeCanvas);
+
+
+/* =========================================================
+   COLORS
+========================================================= */
+
+const wheelColors = [
+  "#ff4655",
+  "#ff5964",
+  "#ff6b35",
+  "#ff9f1c",
+  "#ffd166",
+  "#a7e34b",
+  "#55e878",
+  "#42d6a4",
+  "#43c6ff",
+  "#4da3ff",
+  "#6c7cff",
+  "#9b6cff",
+  "#c77dff",
+  "#ef70ff"
+];
+
+
+/* =========================================================
+   DRAW WHEEL
+========================================================= */
+
+function drawWheel(){
+
+  const center = size / 2;
+  const radius = size / 2 - 5;
+
+  ctx.clearRect(0,0,size,size);
+
+  const slice = Math.PI * 2 / options.length;
+
+  options.forEach((item,i)=>{
+
+    const start = -Math.PI/2 + i * slice;
+    const end = start + slice;
+
+    ctx.beginPath();
+
+    ctx.moveTo(center,center);
+
+    ctx.arc(
+      center,
+      center,
+      radius,
+      start,
+      end
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle = wheelColors[i];
+
+    ctx.fill();
+
+    ctx.strokeStyle = "#09090b";
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+
+
+    /* TEXT */
+
+    ctx.save();
+
+    ctx.translate(center,center);
+
+    ctx.rotate(start + slice/2);
+
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+
+    ctx.fillStyle = "#111";
+
+    ctx.font = "900 17px Arial";
+
+    ctx.fillText(
+      formatArea(item.value),
+      radius - 18,
+      0
+    );
+
+    ctx.restore();
+
+  });
+
+}
+
+
+/* =========================================================
+   FORMAT
+========================================================= */
+
+function formatArea(num){
+
+  return num.toLocaleString("en-US") + " km²";
+
+}
+
+
+/* =========================================================
+   SPIN STATE
+========================================================= */
+
+let rotation = 0;
+let spinning = false;
+
+let selectedIndex = null;
+
+
+/* =========================================================
+   SPIN
+========================================================= */
+
+function spin(){
+
+  if(spinning) return;
+
+  spinning = true;
+
+  document.getElementById("spinButton").disabled = true;
+
+  document.getElementById("nextButton").style.display = "none";
+
+  document.getElementById("quality").textContent = "";
+
+  document.getElementById("result").textContent = "SPINNING...";
+
+
+  /*
+    Pick random result.
+    Every option has the same probability for now.
+  */
+
+  const targetIndex =
+    Math.floor(Math.random() * options.length);
+
+  selectedIndex = targetIndex;
+
+
+  /*
+    Wheel slice centre.
+    Pointer is at top (-90deg).
+  */
+
+  const slice =
+    (Math.PI * 2) / options.length;
+
+  const targetAngle =
+    -(targetIndex * slice + slice / 2);
+
+
+  /*
+    Add lots of rotations.
+  */
+
+  const extraSpins =
+    7 + Math.floor(Math.random() * 4);
+
+  const startRotation = rotation;
+
+  const targetRotation =
+    Math.floor(
+      (startRotation / (Math.PI * 2))
+    ) * (Math.PI * 2)
+    +
+    extraSpins * Math.PI * 2
+    +
+    targetAngle;
+
+
+  const duration = 4200;
+
+  const startTime = performance.now();
+
+
+  function animate(now){
+
+    const elapsed =
+      now - startTime;
+
+    let progress =
+      Math.min(elapsed / duration,1);
+
+
+    /*
+      Smooth dramatic slowdown
+    */
+
+    const eased =
+      1 - Math.pow(1-progress,4);
+
+
+    rotation =
+      startRotation +
+      (targetRotation-startRotation) *
+      eased;
+
+
+    drawRotatedWheel();
+
+
+    if(progress < 1){
+
+      requestAnimationFrame(animate);
+
+    }else{
+
+      rotation = targetRotation;
+
+      drawRotatedWheel();
+
+      finishSpin();
+
+    }
+
+  }
+
+  requestAnimationFrame(animate);
+
+}
+
+
+/* =========================================================
+   ROTATED DRAW
+========================================================= */
+
+function drawRotatedWheel(){
+
+  const center = size/2;
+  const radius = size/2-5;
+
+  ctx.clearRect(0,0,size,size);
+
+  ctx.save();
+
+  ctx.translate(center,center);
+
+  ctx.rotate(rotation);
+
+  ctx.translate(-center,-center);
+
+
+  const slice =
+    Math.PI*2/options.length;
+
+
+  options.forEach((item,i)=>{
+
+    const start =
+      -Math.PI/2+i*slice;
+
+    const end =
+      start+slice;
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(center,center);
+
+    ctx.arc(
+      center,
+      center,
+      radius,
+      start,
+      end
+    );
+
+    ctx.closePath();
+
+    ctx.fillStyle =
+      wheelColors[i];
+
+    ctx.fill();
+
+    ctx.strokeStyle="#09090b";
+    ctx.lineWidth=2;
+
+    ctx.stroke();
+
+
+    ctx.save();
+
+    ctx.translate(center,center);
+
+    ctx.rotate(start+slice/2);
+
+    ctx.textAlign="right";
+    ctx.textBaseline="middle";
+
+    ctx.fillStyle="#111";
+
+    ctx.font="900 17px Arial";
+
+    ctx.fillText(
+      formatArea(item.value),
+      radius-18,
+      0
+    );
+
+    ctx.restore();
+
+  });
+
+
+  ctx.restore();
+
+}
+
+
+/* =========================================================
+   FINISH SPIN
+========================================================= */
+
+function finishSpin(){
+
+  spinning=false;
+
+  const item =
+    options[selectedIndex];
+
+  const result =
+    formatArea(item.value);
+
+
+  document.getElementById("result")
+    .textContent=result;
+
+
+  showQuality(item.quality);
+
+
+  /*
+    SAVE RESULT
+  */
+
+  localStorage.setItem(
+    "countryBuilderSize",
+    JSON.stringify({
+      value:item.value,
+      quality:item.quality,
+      timestamp:Date.now()
+    })
+  );
+
+
+  document.getElementById("savedValue")
+    .textContent =
+      "Country Size — " + result;
+
+
+  document.getElementById("spinButton")
+    .disabled=true;
+
+
+  document.getElementById("nextButton")
+    .style.display="inline-block";
+
+}
+
+
+/* =========================================================
+   QUALITY
+========================================================= */
+
+function showQuality(level){
+
+  const box =
+    document.getElementById("quality");
+
+  box.className="quality";
+
+
+  if(level===1){
+
+    box.textContent="💀 TERRIBLE";
+
+    box.classList.add("bad");
+
+  }
+
+  if(level===2){
+
+    box.textContent="😬 SMALL";
+
+    box.classList.add("bad");
+
+  }
+
+  if(level===3){
+
+    box.textContent="👍 DECENT";
+
+    box.classList.add("mid");
+
+  }
+
+  if(level===4){
+
+    box.textContent="🔥 GREAT";
+
+    box.classList.add("good");
+
+  }
+
+  if(level===5){
+
+    box.textContent="👑 ABSOLUTELY MASSIVE";
+
+    box.classList.add("insane");
+
+  }
+
+}
+
+
+/* =========================================================
+   LOAD SAVED DATA
+========================================================= */
+
+function loadProgress(){
+
+  const saved =
+    localStorage.getItem(
+      "countryBuilderSize"
+    );
+
+
+  if(!saved) return;
+
+
+  try{
+
+    const data =
+      JSON.parse(saved);
+
+
+    const index =
+      options.findIndex(
+        x=>x.value===data.value
+      );
+
+
+    if(index!==-1){
+
+      selectedIndex=index;
+
+
+      document.getElementById("result")
+        .textContent=
+          formatArea(data.value);
+
+
+      showQuality(data.quality);
+
+
+      document.getElementById("savedValue")
+        .textContent=
+          "Country Size — " +
+          formatArea(data.value);
+
+
+      document.getElementById("spinButton")
+        .disabled=true;
+
+
+      document.getElementById("nextButton")
+        .style.display="inline-block";
+
+    }
+
+  }catch(e){
+
+    console.error(e);
+
+  }
+
+}
+
+
+/* =========================================================
+   NEXT WHEEL
+========================================================= */
+
+function nextWheel(){
+
+  alert(
+    "NEXT WHEEL COMING NEXT 😈\n\n" +
+    "This will become the Population wheel."
+  );
+
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+function resetProgress(){
+
+  if(!confirm(
+    "Reset your entire country?"
+  )) return;
+
+
+  localStorage.removeItem(
+    "countryBuilderSize"
+  );
+
+
+  selectedIndex=null;
+
+  document.getElementById("result")
+    .textContent="—";
+
+  document.getElementById("quality")
+    .textContent="";
+
+  document.getElementById("quality")
+    .className="quality";
+
+  document.getElementById("savedValue")
+    .textContent=
+      "Country Size — Not selected";
+
+  document.getElementById("spinButton")
+    .disabled=false;
+
+  document.getElementById("nextButton")
+    .style.display="none";
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+resizeCanvas();
+
+loadProgress();
+
+</script>
+
+</body>
+</html>
